@@ -56,8 +56,8 @@ class AStar(tk.Tk):
         # Create a empty canvas
         self.canvas = tk.Canvas(self)
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.TRUE)
-        self.rows = 10
-        self.columns = 10
+        self.rows = 50
+        self.columns = 50
         # Make the canvas update their winfos
         self.update_idletasks()
         self.cellwidth = self.canvas.winfo_width() / self.columns
@@ -128,15 +128,15 @@ class AStar(tk.Tk):
     def prevAction(self):
         if self.isSearched:
             if self.pos == 0:
-                messagebox.showinfo(
+                tk.messagebox.showinfo(
                     "Thông báo:", "Không thể lùi lại quá đỉnh xuất phát!")
             else:        
-                if self.pos == len(self.openSearchPos):
+                if self.pos == len(self.openSearchPos) and self.path != -1:
                     for p in self.path:
                         if p != self.goal and p != self.start:
                             (x, y) = p
                             self.setColor(x, y, "white")
-                if self.openSearchPos[self.pos -1] == self.goal:
+                if self.openSearchPos[self.pos -1] == self.goal and self.path != -1:
                     (x, y) = self.goal
                     self.setColor(x, y, "green")
                 else:
@@ -153,13 +153,16 @@ class AStar(tk.Tk):
                 self.continueAction()
                 self.update_idletasks()
                 sleep(0.01)
-            messagebox.showinfo("Thông báo:", "Đã mở rộng hết!")
-            (x, y) = self.goal
-            self.setColor(x, y, "green")
-            for p in self.path:
-                if p != self.goal and p != self.start:
-                    (x, y) = p
-                    self.setColor(x, y, "red")
+            tk.messagebox.showinfo("Thông báo:", "Đã mở rộng hết!")
+            if self.path != -1:
+                (x, y) = self.goal
+                self.setColor(x, y, "green")
+                for p in self.path:
+                    if p != self.goal and p != self.start:
+                        (x, y) = p
+                        self.setColor(x, y, "red")
+            else:
+                tk.messagebox.showinfo("Thông báo:", "Không tìm thấy đường đi!")
         else:
             tk.messagebox.showinfo("Thông báo:", "Bắt đầu tìm đường!")
             self.searchPath()
@@ -168,13 +171,16 @@ class AStar(tk.Tk):
     def continueAction(self):
         if self.isSearched:
             if self.pos == len(self.openSearchPos):
-                messagebox.showinfo("Thông báo:", "Đã mở rộng hết!")
-                (x, y) = self.goal
-                self.setColor(x, y, "green")
-                for p in self.path:
-                    if p != self.goal and p != self.start:
-                        (x, y) = p
-                        self.setColor(x, y, "red")
+                tk.messagebox.showinfo("Thông báo:", "Đã mở rộng hết!")
+                if self.path != -1:
+                    (x, y) = self.goal
+                    self.setColor(x, y, "green")
+                    for p in self.path:
+                        if p != self.goal and p != self.start:
+                            (x, y) = p
+                            self.setColor(x, y, "red")
+                else: 
+                    tk.messagebox.showinfo("Thông báo:", "Không tìm thấy đường đi!")
             else:
                 (x, y) = self.openSearchPos[self.pos]
                 self.setColor(x, y, "white")
