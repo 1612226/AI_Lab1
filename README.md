@@ -19,15 +19,15 @@ First, you should create the following:
 
 Control:
 
-- Prev: Previous animated step of A* search
-- Start: Start the animation of A* search from start to goal
-- Next: Next animated step of A* search
+- Prev: Previous animated step 
+- Start: Start the animation from start to goal
+- Next: Next animated step 
 - Create New: Create another animation
 - Radiobutton: ARA or A*
 
 ## What's next
 - Write an article about the writing of this code.
-- Test more.
+- ~Test more.~
 - ~Write a GUI to ARA~.
 - Add some sounds.
 
