@@ -76,7 +76,7 @@ def ARA(start,goal,E):
     g[start]=0
     g[goal]=10**9
     OPEN.put(start,fvalue(start,g,E))
-    CameFrom=ImprovePath(start,goal,g,E,OPEN,CLOSED,INCONS,came_from);
+    CameFrom=ImprovePath(start,goal,g,E,OPEN,CLOSED,INCONS,came_from)
     duongDi=reconstruct_path(CameFrom)
     print ("Duong di vs E=",E,"\n",duongDi,"\n")
     while E>1:
