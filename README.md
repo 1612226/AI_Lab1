@@ -8,13 +8,14 @@ A GUI to animate A* and ARA
 * Python 3.7 and up
 
 ## Usage
-Running file GUI.py to get the visualization of A* heuristic
+Running file GUI.py to get the visualization of A* and ARA heuristic
 
 First, you should create the following:
 
-- Start: Double click middle button
+- Start: Double click left button
 - Goal: Double click right button
-- Barrier: Hold left click
+- Make obstacle: Hold left click
+- Delete obstacle: Hold right click
 
 Control:
 
@@ -22,11 +23,12 @@ Control:
 - Start: Start the animation of A* search from start to goal
 - Next: Next animated step of A* search
 - Create New: Create another animation
+- Radiobutton: ARA or A*
 
 ## What's next
 - Write an article about the writing of this code.
 - Test more.
-- Write a GUI to ARA.
+- ~Write a GUI to ARA~.
 - Add some sounds.
 
 ## Contributing
