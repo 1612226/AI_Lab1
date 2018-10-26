@@ -1,10 +1,11 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import *
-from time import sleep
+import time
 import math
 import heapq
-
+from tkinter import *
+from tkinter import messagebox
+from tkinter import simpledialog
+from time import sleep
 
 class PriorityQueue:
     def __init__(self):
@@ -26,7 +27,7 @@ class PriorityQueue:
         return self.elements[0][1]
 
 
-class AStar(tk.Tk):
+class GUI(tk.Tk):
     def __init__(self):
         self.isExistGoal = False
         self.isExistStart = False
@@ -49,8 +50,11 @@ class AStar(tk.Tk):
         frame_btn = tk.Frame(self)
         frame_btn.pack(side=tk.BOTTOM, fill=tk.X)
         self.prev_btn = tk.Button(
-            frame_btn, text="Prev", command=self.prevAction)
+            frame_btn, text="Previous", command=self.prevAction)
         self.prev_btn.pack(side=tk.LEFT)
+        self.return_btn = tk.Button(
+            frame_btn, text="Return", command=self.returnAction)
+        self.return_btn.pack(side=tk.LEFT)
         self.start_btn = tk.Button(
             frame_btn, text="Start", command=self.startAction)
         self.start_btn.pack(side=tk.LEFT)
@@ -110,8 +114,7 @@ class AStar(tk.Tk):
             current_color = self.canvas.itemcget(item, 'fill')
 
             if current_color == '#32323e':
-                self.canvas.itemconfig(item, fill='blue')      
-                
+                self.canvas.itemconfig(item, fill='blue')
 
     def onCreateGoal(self, event):
         if self.isDrawableCanvas == False:
@@ -185,9 +188,9 @@ class AStar(tk.Tk):
                     tk.messagebox.showinfo(
                         "Thông báo:", "Không thể lùi lại quá đỉnh xuất phát!")
                 else:
-                    if self.pos == len(self.openARA):
+                    if self.path[self.iPathARA][1] != -1 and self.pos == len(self.openARA):
                         self.prevUtil(ColorPath, ColorOpen)
-                    elif self.openARA[self.pos][0] != self.openARA[self.pos - 1][0]:
+                    elif self.path[self.iPathARA][1] != -1 and self.openARA[self.pos][0] != self.openARA[self.pos - 1][0]:
                         self.iPathARA -= 1
                         self.prevUtil(ColorPath, ColorOpen)
                     if self.openARA[self.pos-1][1] != self.goal:
@@ -212,6 +215,8 @@ class AStar(tk.Tk):
             if self.iPathARA == 0:
                 break
             self.iPathARA -= 1
+        if self.iPathARA == 0:
+            self.iPathARA = -1
         for i in range(len(self.path[self.iPathARA+1][1]) - 1, 0, -1):
             (x, y) = self.path[self.iPathARA+1][1][i]
             self.update_idletasks()
@@ -248,6 +253,7 @@ class AStar(tk.Tk):
         elif self.checkVal.get() == 2:
             if self.isSearched:
                 while self.pos < len(self.openARA):
+                    self.update_idletasks()
                     self.continueAction()
                     sleep(0.01)
                 self.continueAction()
@@ -255,7 +261,23 @@ class AStar(tk.Tk):
                 tk.messagebox.showinfo("Thông báo:", "Bắt đầu tìm đường!")
                 self.searchPath()
             self.radio_btnAStar.config(state=DISABLED)
-
+            
+    def returnAction(self):
+        if self.isSearched:
+            while self.pos >= 0:
+                if self.pos == 0:
+                    break
+                self.prevAction()
+                self.update_idletasks()
+                sleep(0.01)
+        else:
+            tk.messagebox.showinfo("Thông báo:", "Bắt đầu tìm đường!")
+            self.searchPath()
+        if self.checkVal.get() == 1:
+            self.radio_btnARA.config(state=DISABLED)
+        else:
+            self.radio_btnAStar.config(state=DISABLED)
+        
     def continueAction(self):
         if self.checkVal.get() == 1:
             if self.isSearched:
@@ -351,7 +373,8 @@ class AStar(tk.Tk):
                 self.path = self.reconstruct_path(
                     self.Astar_search(self.start, self.goal), self.start, self.goal)
             elif self.checkVal.get() == 2:
-                self.path = self.ARA(self.start, self.goal, 3.0)
+                timeInterval = simpledialog.askfloat("Thông báo","Vui lòng nhập vào thời gian (second)")
+                self.path = self.ARA(self.start, self.goal, 3.0, timeInterval)
             self.isSearched = True
             self.pos = 0
             self.isDrawableCanvas = False
@@ -439,7 +462,7 @@ class AStar(tk.Tk):
         else:
             return came_from
 
-    def ARA(self, start, goal, E):
+    def ARA(self, start, goal, E, interval):
         g = {}
         came_from = {}
         came_from[start] = None
@@ -450,10 +473,12 @@ class AStar(tk.Tk):
         OPEN = PriorityQueue()
         g[start] = 0
         g[goal] = 10**9
+        startTime = time.time()
         OPEN.put(start, self.fvalue(start, g, E))
-        CameFrom = self.ImprovePath(start, goal, g, E, OPEN,
+        if time.time() - startTime <= interval:
+            CameFrom = self.ImprovePath(start, goal, g, E, OPEN,
                                     CLOSED, INCONS, came_from)
-        path.append((E, self.reconstruct_path(CameFrom, start, goal)))
+            path.append((E, self.reconstruct_path(CameFrom, start, goal)))
 
         while E > 1:
             E -= 0.5
@@ -462,10 +487,13 @@ class AStar(tk.Tk):
             while not INCONS.empty():
                 state = INCONS.get()
                 OPEN.put(state, self.fvalue(state, g, E))
-            CLOSED.clear()
-            CameFrom2 = self.ImprovePath(
+            CLOSED.clear()  
+            if time.time() - startTime <= interval:
+                CameFrom2 = self.ImprovePath(
                 start, goal, g, E, OPEN, CLOSED, INCONS, came_from)
-            path.append((E, self.reconstruct_path(CameFrom2, start, goal)))
+                path.append((E, self.reconstruct_path(CameFrom2, start, goal)))
+            else:
+                break
         return path
 
     def reconstruct_path(self, came_from, start, goal):
@@ -479,10 +507,10 @@ class AStar(tk.Tk):
             path.append(current)
             current = came_from[current]
         path.append(start)
-        path.reverse()  # optional
+        path.reverse()
         return path
 
 
 if __name__ == "__main__":
-    app = AStar()
+    app = GUI()
     app.mainloop()
