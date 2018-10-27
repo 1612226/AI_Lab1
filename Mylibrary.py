@@ -8,9 +8,9 @@ class PriorityQueue:
 	def empty(self):
 		return len(self.elements)==0
 	def put(self,item,value):
-		heapq.heappush(self.elements,(value,item)) #tham số đầu là cái xét độ ưu tiên
+		heapq.heappush(self.elements,(value,item)) 
 	def get(self):
-		return heapq.heappop(self.elements)[1]  #ko chứa 2 phần tử giống nhau và tự update cái nào có value nhỏ hơn
+		return heapq.heappop(self.elements)[1]  
 	def topValue(self):
 		return self.elements[0][0]
 	def topItem(self):

@@ -23,12 +23,15 @@ def Astar_search(start, goal,sizeOfGrid,grid):
 				came_from[next]=current
 	return came_from #, cost_so_far
 
+import sys
 if __name__=='__main__':
+	fileInput = sys.argv[1]
+	fileOutput = sys.argv[2]
 	grid =[]
 	sizeOfGrid=0
 
 	#read input
-	file_obj = open("input.txt","r")
+	file_obj = open(fileInput,"r")
 	sizeOfGrid = int(file_obj.readline())
 	iS, jS = map(int,file_obj.readline().split()); #iStart, jStart
 	iG, jG = map(int,file_obj.readline().split()); #iGoal, jGoal
@@ -42,7 +45,7 @@ if __name__=='__main__':
 	g_came_from = Astar_search(g_start,g_goal,sizeOfGrid,grid)  
 	g_path = reconstruct_path(g_came_from,g_start,g_goal)
 
-	file_out = open("output.txt","w")
+	file_out = open(fileOutput,"w")
 	if g_path==-1:
 		file_out.write("-1")
 	else:
