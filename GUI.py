@@ -1,5 +1,4 @@
 import tkinter as tk
-import time
 import math
 import heapq
 from tkinter import *
@@ -77,8 +76,8 @@ class GUI(tk.Tk):
         # Create a empty canvas
         self.canvas = tk.Canvas(self)
         self.canvas.pack(side=tk.TOP, fill=tk.BOTH, expand=tk.TRUE)
-        self.rows = 50
-        self.columns = 50
+        self.rows = 25
+        self.columns = 25
         # Make the canvas update their winfos
         self.update_idletasks()
         self.cellwidth = self.canvas.winfo_width() / self.columns
@@ -184,15 +183,17 @@ class GUI(tk.Tk):
                              "#ff6666", "#ff9999", "#ffcccc"]
                 ColorOpen = ["#99999f", "#b2b2b7",
                              "#cccccf", "#e5e5e7", "#ffffff"]
+                if self.iPathARA == -1:
+                    self.iPathARA += 1
                 if self.pos == 0:
                     tk.messagebox.showinfo(
                         "Thông báo:", "Không thể lùi lại quá đỉnh xuất phát!")
                 else:
-                    if self.path[self.iPathARA][1] != -1 and self.pos == len(self.openARA):
-                        self.prevUtil(ColorPath, ColorOpen)
-                    elif self.path[self.iPathARA][1] != -1 and self.openARA[self.pos][0] != self.openARA[self.pos - 1][0]:
-                        self.iPathARA -= 1
-                        self.prevUtil(ColorPath, ColorOpen)
+                    if self.path[self.iPathARA][1] != -1:  
+                        if self.pos == len(self.openARA):
+                            self.prevUtil(ColorPath, ColorOpen)
+                        elif self.openARA[self.pos][0] != self.openARA[self.pos - 1][0]:                     
+                            self.prevUtil(ColorPath, ColorOpen)
                     if self.openARA[self.pos-1][1] != self.goal:
                         (x, y) = self.openARA[self.pos-1][1]
                         self.setColor(x, y, "blue")
@@ -210,7 +211,7 @@ class GUI(tk.Tk):
                 (x, y) = self.path[self.iPathARA][1][i]
                 self.update_idletasks()
                 self.setColor(
-                    x, y, colorpath[int((self.path[self.iPathARA][0] - 1.0)/0.5)])
+                    x, y, colorpath[int((self.path[self.iPathARA-1][0] - 1.0)/0.5)])
                 sleep(0.01)
             if self.iPathARA == 0:
                 break
@@ -232,8 +233,8 @@ class GUI(tk.Tk):
         if self.checkVal.get() == 1:
             if self.isSearched:
                 while self.pos < len(self.openAStar):
-                    self.continueAction()
                     self.update_idletasks()
+                    self.continueAction()
                     sleep(0.01)
                 tk.messagebox.showinfo("Thông báo:", "Đã mở rộng hết!")
                 if self.path != -1:
@@ -265,10 +266,10 @@ class GUI(tk.Tk):
     def returnAction(self):
         if self.isSearched:
             while self.pos >= 0:
+                self.update_idletasks()
                 if self.pos == 0:
                     break
                 self.prevAction()
-                self.update_idletasks()
                 sleep(0.01)
         else:
             tk.messagebox.showinfo("Thông báo:", "Bắt đầu tìm đường!")
@@ -309,6 +310,7 @@ class GUI(tk.Tk):
                     tk.messagebox.showinfo("Thông báo:", "Đã mở rộng hết!")
                     if self.path[self.iPathARA][1] != -1:
                         while self.iPathARA < len(self.path):
+                            self.update_idletasks()
                             self.contUtil(ColorPath, ColorOpen)
                             if(self.iPathARA == len(self.path) - 1):
                                 break
@@ -322,6 +324,7 @@ class GUI(tk.Tk):
                         x, y, ColorOpen[int((self.openARA[self.pos][0] - 1.0)/0.5)])
                     if self.pos < len(self.openARA) - 1 and self.openARA[self.pos][0] != self.openARA[self.pos + 1][0]:
                         while self.path[self.iPathARA][0] != self.openARA[self.pos + 1][0]:
+                            self.update_idletasks()
                             self.contUtil(ColorPath, ColorOpen)
                             if(self.iPathARA == len(self.path) - 1):
                                 break
@@ -336,8 +339,8 @@ class GUI(tk.Tk):
         tk.messagebox.showinfo(
             "Thông báo:", "Đường đi của E = " + str(self.path[self.iPathARA][0]))
         for p in self.path[self.iPathARA][1]:
-            (x, y) = p
             self.update_idletasks()
+            (x, y) = p
             self.setColor(
                 x, y, colorpath[int((self.path[self.iPathARA][0]-1.0)/0.5)])
             (x, y) = self.start
@@ -355,14 +358,12 @@ class GUI(tk.Tk):
         self.isDrawableCanvas = True
         self.isSearched = False
         self.openAStar = []
+        self.openAStar = []
+        self.openARA = []
         self.start = None
         self.goal = None
         self.pos = None
         self.path = []
-        if self.checkVal.get() == 1:
-            self.openAStar = []
-        else:
-            self.openARA = []
         self.iPathARA = 0
         self.radio_btnARA.config(state=NORMAL)
         self.radio_btnAStar.config(state=NORMAL)
@@ -373,12 +374,10 @@ class GUI(tk.Tk):
                 self.path = self.reconstruct_path(
                     self.Astar_search(self.start, self.goal), self.start, self.goal)
             elif self.checkVal.get() == 2:
-                timeInterval = simpledialog.askfloat("Thông báo","Vui lòng nhập vào thời gian (second)")
-                self.path = self.ARA(self.start, self.goal, 3.0, timeInterval)
+                self.path = self.ARA(self.start, self.goal, 3.0)
             self.isSearched = True
             self.pos = 0
             self.isDrawableCanvas = False
-
         else:
             tk.messagebox.showerror(
                 "Lỗi", "Chưa nhập vào điểm đầu và điểm cuối!")
@@ -448,10 +447,11 @@ class GUI(tk.Tk):
                     g[next] = 10**9
                     came_from[next] = current
                 if g[next] > g[current]+1:
-                    self.openARA.append((E, next))
+                    
                     g[next] = g[current]+1
                     came_from[next] = current
                     if next not in CLOSED:
+                        self.openARA.append((E, next))
                         OPEN.put(next, self.fvalue(next, g, E))
                     else:
                         INCONS.put(next, g[next]+self.h(next, goal))
@@ -462,7 +462,7 @@ class GUI(tk.Tk):
         else:
             return came_from
 
-    def ARA(self, start, goal, E, interval):
+    def ARA(self, start, goal, E):
         g = {}
         came_from = {}
         came_from[start] = None
@@ -473,13 +473,10 @@ class GUI(tk.Tk):
         OPEN = PriorityQueue()
         g[start] = 0
         g[goal] = 10**9
-        startTime = time.time()
         OPEN.put(start, self.fvalue(start, g, E))
-        if time.time() - startTime <= interval:
-            CameFrom = self.ImprovePath(start, goal, g, E, OPEN,
+        CameFrom = self.ImprovePath(start, goal, g, E, OPEN,
                                     CLOSED, INCONS, came_from)
-            path.append((E, self.reconstruct_path(CameFrom, start, goal)))
-
+        path.append((E, self.reconstruct_path(CameFrom, start, goal)))
         while E > 1:
             E -= 0.5
             INCONS.elements += OPEN.elements
@@ -488,12 +485,9 @@ class GUI(tk.Tk):
                 state = INCONS.get()
                 OPEN.put(state, self.fvalue(state, g, E))
             CLOSED.clear()  
-            if time.time() - startTime <= interval:
-                CameFrom2 = self.ImprovePath(
+            CameFrom2 = self.ImprovePath(
                 start, goal, g, E, OPEN, CLOSED, INCONS, came_from)
-                path.append((E, self.reconstruct_path(CameFrom2, start, goal)))
-            else:
-                break
+            path.append((E, self.reconstruct_path(CameFrom2, start, goal)))
         return path
 
     def reconstruct_path(self, came_from, start, goal):
